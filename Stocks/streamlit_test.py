@@ -41,7 +41,7 @@ def show_streamlit_test():
     st.title('Portfolio Weight Optimization')
     tickers = st.text_input('Enter ticker symbols separated by commas:', 'AAPL,MSFT,GOOGL,AMZN,TSLA')
     start_date = st.date_input('Start date:', value=pd.to_datetime('2023-01-01'))
-    end_date = st.date_input('End date:', value=pd.to_datetime('2024-07-05'))
+    end_date = st.date_input('End date:', value=pd.to_datetime('today'))  # Set the default end date to today
     risk_factor = st.slider('Select your risk factor (1-10):', 1, 10, 5)
     leverage_factor = st.slider('Select your leverage factor (1-10):', 1, 10, 1)
     initial_investment = st.number_input('Enter your initial investment amount (€):', min_value=1000, step=1000, value=10000)
@@ -60,12 +60,47 @@ def show_streamlit_test():
         portfolio_value = calculate_leveraged_portfolio_value(data, weights, leverage_factor, initial_investment)
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=portfolio_value.index, y=portfolio_value.values, mode='lines', name=f'Portfolio Value with {leverage_factor}x Leverage'))
-        fig.update_layout(title='Leveraged Portfolio Performance Over Time', xaxis_title='Date', yaxis_title='Portfolio Value (€)')
-        st.plotly_chart(fig)
+        fig.update_layout(
+            title='Leveraged Portfolio Performance Over Time', 
+            xaxis_title='Date', 
+            yaxis_title='Portfolio Value (€)',
+            paper_bgcolor='rgba(0,0,0,0)', 
+            plot_bgcolor='rgba(0,0,0,0)'
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
         fig = go.Figure()
         fig.add_trace(go.Bar(x=tickers, y=weights, name='Weights'))
-        fig.update_layout(title='Optimized Portfolio Weights', xaxis_title='Tickers', yaxis_title='Weights')
-        st.plotly_chart(fig)
+        fig.update_layout(
+            title='Optimized Portfolio Weights', 
+            xaxis_title='Tickers', 
+            yaxis_title='Weights',
+            paper_bgcolor='rgba(0,0,0,0)', 
+            plot_bgcolor='rgba(0,0,0,0)'
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+        # Add personalized explanation
+        st.write(f"""
+        ### Explanation of Results
+        The Portfolio Weight Optimization for the selected tickers ({', '.join(tickers)}) from {start_date} to {end_date} 
+        shows how you can allocate your investment based on the specified risk and leverage factors.
+
+        **Key Parameters:**
+        - **Risk Factor:** {risk_factor}
+        - **Leverage Factor:** {leverage_factor}
+        - **Initial Investment:** €{initial_investment}
+
+        **Charts Explanation:**
+        - The first chart displays the performance of the leveraged portfolio over time. The y-axis shows the portfolio value in euros, 
+          and the x-axis represents the dates within the specified range.
+        - The second chart shows the optimized weights for each ticker in the portfolio. The y-axis indicates the weights, 
+          and the x-axis lists the ticker symbols.
+
+        By analyzing these results, you can understand how different weights and leverage factors affect your portfolio's performance 
+        and make informed investment decisions.
+        """)
     else:
         st.write('No data available for the selected tickers and date range.')
+
+# To use the updated function, ensure this is called in your main Streamlit app.

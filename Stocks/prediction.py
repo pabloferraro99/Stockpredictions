@@ -5,16 +5,13 @@ from prophet import Prophet
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-# Set page configuration
-st.set_page_config(page_title="Finance Dashboard", layout="wide")
-
 # Function to show prediction
 def show_prediction():
     st.title("Stock Prediction and Seasonality")
 
     ticker = st.text_input("Enter the ticker symbol (e.g., NVDA for NVIDIA):", value="NVDA")
     start_date = st.date_input("Start date:", value=pd.to_datetime("2019-04-01"))
-    end_date = st.date_input("End date:", value=pd.to_datetime("2024-07-04"))
+    end_date = st.date_input("End date:", value=pd.to_datetime('today'))  # Default to the current day
 
     @st.cache_data
     def fetch_data(ticker, start, end):
@@ -44,11 +41,17 @@ def show_prediction():
     fig_forecast = go.Figure()
     fig_forecast.add_trace(go.Scatter(x=forecast['ds'], y=forecast['yhat'], mode='lines', name='Predicted Price'))
     fig_forecast.add_trace(go.Scatter(x=prophet_df['ds'], y=prophet_df['y'], mode='lines', name='Actual Price'))
-    fig_forecast.update_layout(title='Stock Price Forecast', xaxis_title='Date', yaxis_title='Stock Close Value')
+    fig_forecast.update_layout(
+        title='Stock Price Forecast', 
+        xaxis_title='Date', 
+        yaxis_title='Stock Close Value',
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
     st.plotly_chart(fig_forecast)
 
     # Display the forecasted values
-    st.write(forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail(12))
+    # st.write(forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail(12))
 
     # Extract and plot seasonality components using Prophet's plot_components method
     fig_components = model.plot_components(forecast)
@@ -64,12 +67,12 @@ def show_prediction():
     yearly_data = fig_components.axes[2].lines[0].get_data()
     fig.add_trace(go.Scatter(x=yearly_data[0], y=yearly_data[1], mode='lines', name='Yearly Seasonality'), row=2, col=1)
 
-    fig.update_layout(height=800, title_text="Seasonality Components")
+    fig.update_layout(
+        height=800, 
+        title_text="Seasonality Components",
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
     st.plotly_chart(fig)
 
-# Streamlit app
-st.sidebar.title("Navigation")
-page = st.sidebar.selectbox('Go to', ['Prediction'])
-
-if page == 'Prediction':
-    show_prediction()
+# To use the updated function, ensure this is called in your main Streamlit app.
